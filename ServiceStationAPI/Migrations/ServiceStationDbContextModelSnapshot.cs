@@ -129,7 +129,7 @@ namespace ServiceStationAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserTypes");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("ServiceStationAPI.Entities.User", b =>

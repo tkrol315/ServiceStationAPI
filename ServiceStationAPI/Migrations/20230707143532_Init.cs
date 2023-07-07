@@ -25,7 +25,7 @@ namespace ServiceStationAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserTypes",
+                name: "Roles",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -34,7 +34,7 @@ namespace ServiceStationAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserTypes", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -52,9 +52,9 @@ namespace ServiceStationAPI.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Users_UserTypes_RoleId",
+                        name: "FK_Users_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "UserTypes",
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -160,7 +160,7 @@ namespace ServiceStationAPI.Migrations
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "UserTypes");
+                name: "Roles");
         }
     }
 }

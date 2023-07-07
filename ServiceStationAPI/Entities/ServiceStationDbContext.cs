@@ -12,7 +12,7 @@ namespace ServiceStationAPI.Entities
         public DbSet<CarType> CarTypes { get; set; }
         public DbSet<OrderNote> OrderNotes { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Role> UserTypes { get; set; }
+        public DbSet<Role> Roles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

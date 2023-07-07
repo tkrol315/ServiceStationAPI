@@ -12,7 +12,7 @@ using ServiceStationAPI.Entities;
 namespace ServiceStationAPI.Migrations
 {
     [DbContext(typeof(ServiceStationDbContext))]
-    [Migration("20230707141211_Init")]
+    [Migration("20230707143532_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -132,7 +132,7 @@ namespace ServiceStationAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserTypes");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("ServiceStationAPI.Entities.User", b =>
