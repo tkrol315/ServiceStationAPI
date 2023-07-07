@@ -11,6 +11,6 @@
         public int TypeId { get; set; }
         public string Vin { get; set; }
         public string RegistrationNumber { get; set; }
-        public List<OrderNote> OrderNotes { get; set; }
+        public List<OrderNote> OrderNotes { get; set; } = new List<OrderNote>();
     }
 }
