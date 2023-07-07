@@ -9,7 +9,7 @@ namespace ServiceStationAPI.Entities
         }
 
         public DbSet<Car> Cars { get; set; }
-        public DbSet<CarType> CarTypes { get; set; }
+        public DbSet<VehicleType> VehicleTypes { get; set; }
         public DbSet<OrderNote> OrderNotes { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }

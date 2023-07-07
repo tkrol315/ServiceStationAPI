@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ServiceStationAPI;
 using ServiceStationAPI.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,8 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ServiceStationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ServiceStationConnection")));
+builder.Services.AddScoped<Seeder>();
 var app = builder.Build();
-
+var scope = app.Services.CreateScope();
+var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
+seeder.Seed();
 // Configure the HTTP request pipeline.
 
 app.UseAuthorization();
