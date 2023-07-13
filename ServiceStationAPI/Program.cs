@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ServiceStationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ServiceStationConnection")));
 builder.Services.AddScoped<Seeder>();
-builder.Services.AddScoped<ICarService, CarService>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 var scope = app.Services.CreateScope();

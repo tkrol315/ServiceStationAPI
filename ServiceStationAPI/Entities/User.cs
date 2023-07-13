@@ -9,7 +9,7 @@
         public int RoleId { get; set; }
         public string Email { get; set; }
         public string? phoneNumber { get; set; }
-        public List<Car> Cars { get; set; } = new List<Car>();
+        public List<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
         public List<OrderNote> OrderNotes { get; set; } = new List<OrderNote>();
     }
 }

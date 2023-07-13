@@ -5,11 +5,11 @@ using ServiceStationAPI.Models;
 
 namespace ServiceStationAPI
 {
-    public class CarMappingProfile : Profile
+    public class MappingProfile : Profile
     {
-        public CarMappingProfile()
+        public MappingProfile()
         {
-            CreateMap<Car, CarDto>()
+            CreateMap<Vehicle, VehicleDto>()
                 .ForMember(m => m.OwnerName, on => on.MapFrom(u => u.Owner.Name))
                 .ForMember(m => m.OwnerSurname, on => on.MapFrom(u => u.Owner.Surname))
                 .ForMember(m => m.OwnerEmail, on => on.MapFrom(u => u.Owner.Email))

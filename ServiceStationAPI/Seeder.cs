@@ -35,10 +35,10 @@ namespace ServiceStationAPI
                     _dbContext.VehicleTypes.AddRange(vehicleTypes);
                     _dbContext.SaveChanges();
                 }
-                if (!_dbContext.Cars.Any())
+                if (!_dbContext.Vehicles.Any())
                 {
                     var vehicle = TestInit();
-                    _dbContext.Cars.AddRange(vehicle);
+                    _dbContext.Vehicles.AddRange(vehicle);
                     _dbContext.SaveChanges();
                 }
             }
@@ -54,11 +54,11 @@ namespace ServiceStationAPI
             return new List<VehicleType>() { new VehicleType() { Name = "Car" }, new VehicleType() { Name = "Truck" } };
         }
 
-        private IEnumerable<Car> TestInit()
+        private IEnumerable<Vehicle> TestInit()
         {
-            return new List<Car>()
+            return new List<Vehicle>()
             {
-                new Car(){
+                new Vehicle(){
                     Brand="Skoda",
                     Model="Octavia",
                     Owner = new User()
@@ -72,7 +72,7 @@ namespace ServiceStationAPI
                     Vin = "WVGZZZ5NZ8W031284",
                     RegistrationNumber = "SB1234"
                 },
-                 new Car(){
+                 new Vehicle(){
                     Brand="Passat",
                     Model="B6",
                     Owner = new User()
