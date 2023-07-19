@@ -26,8 +26,6 @@ namespace ServiceStationAPI.Controllers
         public ActionResult<VehicleDto> Get([FromRoute] int id)
         {
             var car = _vehicleService.GetVehicle(id);
-            if (car is null)
-                return NotFound();
             return Ok(car);
         }
 
@@ -41,17 +39,15 @@ namespace ServiceStationAPI.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete([FromRoute] int id)
         {
-            if (_vehicleService.DeleteVehicle(id))
-                return Ok();
-            return NotFound();
+            _vehicleService.DeleteVehicle(id);
+            return Ok();
         }
 
         [HttpPut("{id}")]
         public ActionResult Update([FromRoute] int id, [FromBody] UpdateVehicleDto dto)
         {
-            if (_vehicleService.UpdateVehicle(id, dto))
-                return Ok();
-            return NotFound();
+            _vehicleService.UpdateVehicle(id, dto);
+            return Ok();
         }
     }
 }

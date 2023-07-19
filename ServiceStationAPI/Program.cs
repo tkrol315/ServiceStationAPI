@@ -15,6 +15,8 @@ builder.Services.AddScoped<Seeder>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
+builder.Services.AddScoped<RequestTimeMiddleware>();
+builder.Services.AddSwaggerGen();
 
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
@@ -22,6 +24,7 @@ builder.Host.UseNLog();
 
 var app = builder.Build();
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseMiddleware<RequestTimeMiddleware>();
 var scope = app.Services.CreateScope();
 var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
 seeder.Seed();
@@ -30,5 +33,7 @@ seeder.Seed();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseSwagger();
+app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "Service Station API"));
 
 app.Run();

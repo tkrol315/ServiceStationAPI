@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ServiceStationAPI.Dtos;
 using ServiceStationAPI.Entities;
+using ServiceStationAPI.Exceptions;
 using ServiceStationAPI.Models;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -16,9 +17,9 @@ namespace ServiceStationAPI.Services
 
         int CreateVehicle(CreateVehicleDto dto);
 
-        bool DeleteVehicle(int id);
+        void DeleteVehicle(int id);
 
-        bool UpdateVehicle(int id, UpdateVehicleDto dto);
+        void UpdateVehicle(int id, UpdateVehicleDto dto);
     }
 
     public class VehicleService : IVehicleService
@@ -45,6 +46,8 @@ namespace ServiceStationAPI.Services
         public VehicleDto GetVehicle(int id)
         {
             var vehicle = _dbContext.Vehicles.Include(c => c.Owner).Include(v => v.Type).FirstOrDefault(v => v.Id == id);
+            if (vehicle == null)
+                throw new NotFoundException("Vehicle not found");
             var vehicleDto = _mapper.Map<VehicleDto>(vehicle);
             return vehicleDto;
         }
@@ -59,35 +62,27 @@ namespace ServiceStationAPI.Services
             return vehicle.Id;
         }
 
-        public bool DeleteVehicle(int id)
+        public void DeleteVehicle(int id)
         {
             _logger.LogWarning($"Delete action on vehicle with id {id} invoked");
             var vehicle = _dbContext.Vehicles.FirstOrDefault(v => v.Id == id);
-            if (vehicle != null)
-            {
-                _dbContext.Vehicles.Remove(vehicle);
-                _dbContext.SaveChanges();
-                _logger.LogInformation($"Vehicle with Id {id} deleted");
-                return true;
-            }
-            _logger.LogInformation($"Vehicle with Id {id} not found");
-            return false;
+            if (vehicle == null)
+                throw new NotFoundException("Vehicle not found");
+            _dbContext.Vehicles.Remove(vehicle);
+            _dbContext.SaveChanges();
+            _logger.LogInformation($"Vehicle with Id {id} deleted");
         }
 
-        public bool UpdateVehicle(int id, UpdateVehicleDto dto)
+        public void UpdateVehicle(int id, UpdateVehicleDto dto)
         {
             var vehicle = _dbContext.Vehicles.FirstOrDefault(v => v.Id == id);
-            if (vehicle != null)
-            {
-                vehicle.Brand = dto.Brand;
-                vehicle.Model = dto.Model;
-                vehicle.RegistrationNumber = dto.RegistrationNumber;
-                _dbContext.SaveChanges();
-                _logger.LogInformation($"Vehicle with Id {id} updated");
-                return true;
-            }
-            _logger.LogInformation($"Vehicle with Id {id} not found");
-            return false;
+            if (vehicle == null)
+                throw new NotFoundException("Vehicle not found");
+            vehicle.Brand = dto.Brand;
+            vehicle.Model = dto.Model;
+            vehicle.RegistrationNumber = dto.RegistrationNumber;
+            _dbContext.SaveChanges();
+            _logger.LogInformation($"Vehicle with Id {id} updated");
         }
 
         private User GetOrCreateOwner(CreateVehicleDto dto)
