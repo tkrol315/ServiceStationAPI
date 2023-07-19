@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ServiceStationAPI.Dtos;
 using ServiceStationAPI.Entities;
 using ServiceStationAPI.Models;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace ServiceStationAPI.Services
@@ -24,11 +25,14 @@ namespace ServiceStationAPI.Services
     {
         private readonly ServiceStationDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<VehicleService> _logger;
 
-        public VehicleService(ServiceStationDbContext dbContext, IMapper mapper)
+        public VehicleService(ServiceStationDbContext dbContext, IMapper mapper, ILogger<VehicleService> logger)
+
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public IEnumerable<VehicleDto> GetVehicles()
@@ -51,18 +55,22 @@ namespace ServiceStationAPI.Services
             vehicle.Owner = GetOrCreateOwner(dto);
             _dbContext.Vehicles.Add(vehicle);
             _dbContext.SaveChanges();
+            _logger.LogInformation($"Vehicle with Id:{vehicle.Id} created");
             return vehicle.Id;
         }
 
         public bool DeleteVehicle(int id)
         {
+            _logger.LogWarning($"Delete action on vehicle with id {id} invoked");
             var vehicle = _dbContext.Vehicles.FirstOrDefault(v => v.Id == id);
             if (vehicle != null)
             {
                 _dbContext.Vehicles.Remove(vehicle);
                 _dbContext.SaveChanges();
+                _logger.LogInformation($"Vehicle with Id {id} deleted");
                 return true;
             }
+            _logger.LogInformation($"Vehicle with Id {id} not found");
             return false;
         }
 
@@ -75,8 +83,10 @@ namespace ServiceStationAPI.Services
                 vehicle.Model = dto.Model;
                 vehicle.RegistrationNumber = dto.RegistrationNumber;
                 _dbContext.SaveChanges();
+                _logger.LogInformation($"Vehicle with Id {id} updated");
                 return true;
             }
+            _logger.LogInformation($"Vehicle with Id {id} not found");
             return false;
         }
 
