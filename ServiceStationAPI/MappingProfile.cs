@@ -20,6 +20,11 @@ namespace ServiceStationAPI
                 .ForMember(m => m.CreatorSurname, opt => opt.MapFrom(on => on.Creator.Surname));
             CreateMap<CreateVehicleDto, Vehicle>()
                 .ForMember(m => m.Owner, opt => opt.Ignore());
+            CreateMap<CreateOrderNoteDto, OrderNote>()
+                .ForMember(m => m.Vehicle, opt => opt.Ignore())
+                .ForMember(m => m.Creator, opt => opt.Ignore());
+           CreateMap<RegisterAccountDto,User>()
+                .ForMember(m=>m.Role, opt => opt.Ignore());
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace ServiceStationAPI.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ServiceStationAPI.Models
 {
     public class UpdateVehicleDto
     {

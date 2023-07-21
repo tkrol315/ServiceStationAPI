@@ -7,7 +7,7 @@
         public string Description { get; set; }
         public decimal Price { get; set; }
         public Vehicle Vehicle { get; set; }
-        public int CarId { get; set; }
+        public int VehicleId { get; set; }
         public User Creator { get; set; }
         public Guid CreatorId { get; set; }
         public DateTime Created { get; set; }

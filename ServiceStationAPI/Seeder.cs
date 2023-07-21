@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using ServiceStationAPI.Entities;
 
@@ -7,11 +8,13 @@ namespace ServiceStationAPI
     public class Seeder
     {
         private readonly ServiceStationDbContext _dbContext;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public Seeder(ServiceStationDbContext dbContext)
+        public Seeder(ServiceStationDbContext dbContext,IPasswordHasher<User> passwordHasher)
 
         {
             _dbContext = dbContext;
+            _passwordHasher = passwordHasher;
         }
 
         public void Seed()
@@ -46,7 +49,7 @@ namespace ServiceStationAPI
 
         private IEnumerable<Role> GetRoles()
         {
-            return new List<Role>() { new Role() { Name = "Client" }, new Role() { Name = "Manager" } };
+            return new List<Role>() { new Role() { Name = "Client" }, new Role() { Name = "Mechanic" }, new Role() { Name = "Manager" } };
         }
 
         private IEnumerable<VehicleType> GetVehicleTypes()
@@ -56,7 +59,7 @@ namespace ServiceStationAPI
 
         private IEnumerable<Vehicle> TestInit()
         {
-            return new List<Vehicle>()
+            var list = new List<Vehicle>()
             {
                 new Vehicle(){
                     Brand="Skoda",
@@ -87,6 +90,9 @@ namespace ServiceStationAPI
                     RegistrationNumber = "SB5678"
                 }
             };
+            list[0].Owner.PasswordHash = _passwordHasher.HashPassword(list[0].Owner, "123456789");
+            list[1].Owner.PasswordHash = _passwordHasher.HashPassword(list[1].Owner, "qwertyuiop");
+            return list;
         }
     }
 }

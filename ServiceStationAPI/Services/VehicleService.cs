@@ -90,8 +90,7 @@ namespace ServiceStationAPI.Services
             var owner = _dbContext.Users.FirstOrDefault(u =>
                 u.Name.ToLower() == dto.OwnerName.ToLower() &&
                 u.Surname.ToLower() == dto.OwnerSurname.ToLower() &&
-                u.Email.ToLower() == dto.Email.ToLower() &&
-                u.PhoneNumber == dto.PhoneNumber);
+                u.Email.ToLower() == dto.Email.ToLower());
 
             if (owner is null)
             {
@@ -101,6 +100,7 @@ namespace ServiceStationAPI.Services
                     Surname = dto.OwnerSurname,
                     Email = dto.Email,
                     PhoneNumber = dto.PhoneNumber,
+                    PasswordHash = "temporary - solution",
                     RoleId = 1
                 };
             }

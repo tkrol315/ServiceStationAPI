@@ -1,8 +1,13 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NLog.Web;
 using ServiceStationAPI;
 using ServiceStationAPI.Entities;
 using ServiceStationAPI.Middleware;
+using ServiceStationAPI.Models;
+using ServiceStationAPI.Models.Validators;
 using ServiceStationAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,9 +15,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddDbContext<ServiceStationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ServiceStationConnection")));
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddFluentValidation();
 builder.Services.AddScoped<Seeder>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IPasswordHasher<User>,PasswordHasher<User>>();
+builder.Services.AddScoped<IValidator<RegisterAccountDto>,RegisterAccountDtoValidator>();
+builder.Services.AddScoped<IValidator<CreateOrderNoteDto>,CreateOrderNoteDtoValidator>();
+builder.Services.AddScoped<IValidator<UpdateVehicleDto>,UpdateVehicleDtoValidator>();
+builder.Services.AddScoped<IValidator<CreateVehicleDto>,CreateVehicleDtoValidator>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<RequestTimeMiddleware>();

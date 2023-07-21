@@ -9,6 +9,7 @@ namespace ServiceStationAPI.Entities.Configuration
         {
             builder.Property(o => o.Title).IsRequired();
             builder.Property(o => o.Description).IsRequired();
+            builder.Property(o => o.Price).HasPrecision(10, 2);
             builder.HasOne(o => o.Creator).WithMany(u => u.OrderNotes).HasForeignKey(o => o.CreatorId).OnDelete(DeleteBehavior.NoAction);
         }
     }
