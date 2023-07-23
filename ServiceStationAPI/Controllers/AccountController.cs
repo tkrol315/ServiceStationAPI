@@ -15,10 +15,17 @@ namespace ServiceStationAPI.Controllers
             _accountService = accountService;
         }
         [HttpPost("register")]
-        public ActionResult RegisterUser([FromBody] RegisterAccountDto dto)
+        public ActionResult Register([FromBody] RegisterAccountDto dto)
         {
             _accountService.RegisterAccount(dto);
             return Ok();
+        }
+
+        [HttpPost("login")]
+        public ActionResult Login([FromBody] LoginAccountDto dto)
+        {
+            string token = _accountService.GenerateJwtToken(dto);
+            return Ok(token);
         }
     }
 }
