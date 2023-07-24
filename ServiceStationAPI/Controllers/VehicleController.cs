@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ServiceStationAPI.Dtos;
 using ServiceStationAPI.Models;
 using ServiceStationAPI.Services;
@@ -7,6 +8,7 @@ namespace ServiceStationAPI.Controllers
 {
     [Route("api/vehicle")]
     [ApiController]
+    [Authorize]
     public class VehicleController : ControllerBase
     {
         private readonly IVehicleService _vehicleService;

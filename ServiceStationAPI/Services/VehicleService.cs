@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 using ServiceStationAPI.Dtos;
 using ServiceStationAPI.Entities;
 using ServiceStationAPI.Exceptions;
 using ServiceStationAPI.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace ServiceStationAPI.Services
 {
@@ -25,18 +28,20 @@ namespace ServiceStationAPI.Services
         private readonly ServiceStationDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ILogger<VehicleService> _logger;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public VehicleService(ServiceStationDbContext dbContext, IMapper mapper, ILogger<VehicleService> logger)
+        public VehicleService(ServiceStationDbContext dbContext, IMapper mapper, ILogger<VehicleService> logger,IHttpContextAccessor contextAccessor)
 
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
+            _contextAccessor = contextAccessor;
         }
 
         public IEnumerable<VehicleDto> GetVehicles()
         {
-            var vehicles = _dbContext.Vehicles.Include(v => v.Owner).Include(v => v.Type).ToList();
+            var vehicles = _dbContext.Vehicles.Include(v => v.Owner).Include(v => v.Type).Include(v=>v.OrderNotes).ToList();
             var vehicleDtos = _mapper.Map<List<VehicleDto>>(vehicles);
             return vehicleDtos;
         }
@@ -53,7 +58,11 @@ namespace ServiceStationAPI.Services
         public int CreateVehicle(CreateVehicleDto dto)
         {
             var vehicle = _mapper.Map<CreateVehicleDto, Vehicle>(dto);
-            vehicle.Owner = GetOrCreateOwner(dto);
+            var ownerIdClaim = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+            if (ownerIdClaim != null && Guid.TryParse(ownerIdClaim.Value, out Guid ownerId))
+                vehicle.Owner = _dbContext.Users.FirstOrDefault(u => u.Id == ownerId);
+            else
+                throw new NotFoundException("Owner not found");
             _dbContext.Vehicles.Add(vehicle);
             _dbContext.SaveChanges();
             _logger.LogInformation($"Vehicle with Id:{vehicle.Id} created");
@@ -83,27 +92,6 @@ namespace ServiceStationAPI.Services
             _logger.LogInformation($"Vehicle with Id {id} updated");
         }
 
-        private User GetOrCreateOwner(CreateVehicleDto dto)
-        {
-            var owner = _dbContext.Users.FirstOrDefault(u =>
-                u.Name.ToLower() == dto.OwnerName.ToLower() &&
-                u.Surname.ToLower() == dto.OwnerSurname.ToLower() &&
-                u.Email.ToLower() == dto.Email.ToLower());
-
-            if (owner is null)
-            {
-                owner = new User()
-                {
-                    Name = dto.OwnerName,
-                    Surname = dto.OwnerSurname,
-                    Email = dto.Email,
-                    PhoneNumber = dto.PhoneNumber,
-                    PasswordHash = "temporary - solution",
-                    RoleId = 1
-                };
-            }
-
-            return owner;
-        }
+        
     }
 }

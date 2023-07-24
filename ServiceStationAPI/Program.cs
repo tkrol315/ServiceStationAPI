@@ -40,12 +40,14 @@ builder.Services.AddControllers().AddFluentValidation();
 builder.Services.AddScoped<Seeder>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IOrderNoteService, OrderNoteService>();
 builder.Services.AddScoped<IPasswordHasher<User>,PasswordHasher<User>>();
 builder.Services.AddScoped<IValidator<RegisterAccountDto>,RegisterAccountDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateOrderNoteDto>,CreateOrderNoteDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateVehicleDto>,UpdateVehicleDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateVehicleDto>,CreateVehicleDtoValidator>();
 builder.Services.AddScoped<IValidator<LoginAccountDto>,LoginAccountDtoValidator>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddScoped<RequestTimeMiddleware>();
@@ -54,18 +56,15 @@ builder.Services.AddSwaggerGen();
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 builder.Host.UseNLog();
-
 var app = builder.Build();
-app.UseMiddleware<ErrorHandlingMiddleware>();
-app.UseMiddleware<RequestTimeMiddleware>();
 var scope = app.Services.CreateScope();
 var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
 seeder.Seed();
-// Configure the HTTP request pipeline.
-
+// Configure the HTTP request pipeline
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseMiddleware<RequestTimeMiddleware>();
 app.MapControllers();
 app.UseSwagger();
 app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "Service Station API"));

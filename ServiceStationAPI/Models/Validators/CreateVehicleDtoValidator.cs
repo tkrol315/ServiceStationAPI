@@ -8,9 +8,6 @@ namespace ServiceStationAPI.Models.Validators
         {
             RuleFor(c=>c.Brand).NotEmpty();
             RuleFor(c => c.Model).NotEmpty();
-            RuleFor(c => c.OwnerName).NotEmpty();
-            RuleFor(c => c.OwnerSurname).NotEmpty();
-            RuleFor(c => c.Email).EmailAddress();
             RuleFor(c => c.Vin).NotEmpty();
             RuleFor(c => c.RegistrationNumber).NotEmpty();
 

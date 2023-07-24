@@ -9,10 +9,6 @@ namespace ServiceStationAPI.Models.Validators
         {
             RuleFor(c=>c.Title).NotEmpty();
             RuleFor(c => c.Description).NotEmpty();
-            RuleFor(c => c.VehicleId).NotEmpty();
-            RuleFor(c => c.CreatorName).NotEmpty();
-            RuleFor(c => c.CreatorSurname).NotEmpty();
-            RuleFor(c => c.CreatorEmail).NotEmpty().EmailAddress();
         }
     }
 }
