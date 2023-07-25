@@ -18,7 +18,7 @@ namespace ServiceStationAPI.Services
 
         int CreateVehicle(CreateVehicleDto dto);
 
-        void DeleteVehicle(int id);
+        void RemoveVehicle(int id);
 
         void UpdateVehicle(int id, UpdateVehicleDto dto);
     }
@@ -69,9 +69,9 @@ namespace ServiceStationAPI.Services
             return vehicle.Id;
         }
 
-        public void DeleteVehicle(int id)
+        public void RemoveVehicle(int id)
         {
-            _logger.LogWarning($"Delete action on vehicle with id {id} invoked");
+            _logger.LogInformation($"Delete action on vehicle with id {id} invoked");
             var vehicle = _dbContext.Vehicles.FirstOrDefault(v => v.Id == id);
             if (vehicle == null)
                 throw new NotFoundException("Vehicle not found");

@@ -17,23 +17,35 @@ namespace ServiceStationAPI.Controllers
             _orderNoteService = orderNoteService;   
         }
         [HttpPost]
-        public ActionResult Create([FromRoute] int vehicleId, [FromBody] CreateOrderNoteDto dto)
+        public ActionResult CreateOrderNote([FromRoute] int vehicleId, [FromBody] CreateOrderNoteDto dto)
         {
             var noteId = _orderNoteService.CreateOrderNote(vehicleId, dto);
             return Created($"api/{vehicleId}/ordernote/{noteId}",null);
         }
         [HttpGet]
-        public ActionResult GetAll([FromRoute]int vehicleId)
+        public ActionResult GetAllOrderNotes([FromRoute]int vehicleId)
         {
-            var orderNotes = _orderNoteService.GetOrderNotes(vehicleId);
+            var orderNotes = _orderNoteService.GetAllOrderNotes(vehicleId);
             return Ok(orderNotes);
         }
 
         [HttpGet("{orderNoteId}")]
-        public ActionResult GetById([FromRoute] int vehicleId, [FromRoute] int orderNoteId)
+        public ActionResult GetOrderNote([FromRoute] int vehicleId, [FromRoute] int orderNoteId)
         {
             var orderNote = _orderNoteService.GetOrderNoteById(vehicleId, orderNoteId);
             return Ok(orderNote);
+        }
+        [HttpDelete("{orderNoteId}")]
+        public ActionResult DeleteOrderNote( [FromRoute] int vehicleId, [FromRoute] int orderNoteId)
+        {
+            _orderNoteService.RemoveOrderNoteById(vehicleId, orderNoteId);
+            return NoContent();
+        }
+        [HttpDelete]
+        public ActionResult DeleteOrderNotes([FromRoute] int vehicleId)
+        {
+            _orderNoteService.RemoveOrderNotes(vehicleId);
+            return NoContent();
         }
     }
 }

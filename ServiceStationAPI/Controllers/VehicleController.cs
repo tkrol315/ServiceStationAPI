@@ -19,34 +19,34 @@ namespace ServiceStationAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<VehicleDto>> GetAll()
+        public ActionResult<IEnumerable<VehicleDto>> GetVehicles()
         {
             return Ok(_vehicleService.GetVehicles());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<VehicleDto> Get([FromRoute] int id)
+        public ActionResult<VehicleDto> GetVehicle([FromRoute] int id)
         {
             var car = _vehicleService.GetVehicle(id);
             return Ok(car);
         }
 
         [HttpPost]
-        public ActionResult Create([FromBody] CreateVehicleDto dto)
+        public ActionResult CreateVehicle([FromBody] CreateVehicleDto dto)
         {
             var id = _vehicleService.CreateVehicle(dto);
             return Created($"api/car/{id}", null);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete([FromRoute] int id)
+        public ActionResult DeleteVehicle([FromRoute] int id)
         {
-            _vehicleService.DeleteVehicle(id);
-            return Ok();
+            _vehicleService.RemoveVehicle(id);
+            return NoContent();
         }
 
         [HttpPut("{id}")]
-        public ActionResult Update([FromRoute] int id, [FromBody] UpdateVehicleDto dto)
+        public ActionResult UpdateVehicle([FromRoute] int id, [FromBody] UpdateVehicleDto dto)
         {
             _vehicleService.UpdateVehicle(id, dto);
             return Ok();

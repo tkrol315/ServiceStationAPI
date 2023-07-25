@@ -22,13 +22,15 @@ namespace ServiceStationAPI.Services
         private readonly ServiceStationDbContext _dbContext;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
-        public AccountService(ServiceStationDbContext dbContext,IMapper mapper,IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
+        private readonly ILogger<AccountService> _logger;
+        public AccountService(ServiceStationDbContext dbContext,IMapper mapper,IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings,
+            ILogger<AccountService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
-
+            _logger = logger;
         }
         public void RegisterAccount(RegisterAccountDto dto)
         {
@@ -37,6 +39,7 @@ namespace ServiceStationAPI.Services
             newAccount.PasswordHash = hashedPassword;
             _dbContext.Users.Add(newAccount);
             _dbContext.SaveChanges();
+            _logger.LogInformation($"New uesr with Id {newAccount.Id} registered");
         }
 
         public string GenerateJwtToken(LoginAccountDto dto)
@@ -57,11 +60,15 @@ namespace ServiceStationAPI.Services
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
             var credentials = new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddMinutes(_authenticationSettings.JwtExpireMins);
+            //TEMPORARY CHANGE
+            //var expires = DateTime.Now.AddMinutes(_authenticationSettings.JwtExpireMins);
+            var expires = DateTime.Now.AddDays(_authenticationSettings.JwtExpireMins);
+            //==============================================================================
 
             var token = new JwtSecurityToken(_authenticationSettings.JwtIssuer,_authenticationSettings.JwtIssuer,claims,
                 expires:expires, signingCredentials: credentials);
             var tokenHandler = new JwtSecurityTokenHandler();
+            _logger.LogInformation($"User with Id {user.Id} logged in");
             return tokenHandler.WriteToken(token);
         }
     }
