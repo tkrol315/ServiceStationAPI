@@ -13,8 +13,8 @@ namespace ServiceStationAPI.Services
 {
     public interface IAccountService
     {
-        void RegisterAccount(RegisterAccountDto dto);
-        string GenerateJwtToken(LoginAccountDto dto);
+        Task RegisterAccount(RegisterAccountDto dto);
+        Task<string> GenerateJwtToken(LoginAccountDto dto);
     }
     public class AccountService:IAccountService
     {
@@ -32,19 +32,19 @@ namespace ServiceStationAPI.Services
             _authenticationSettings = authenticationSettings;
             _logger = logger;
         }
-        public void RegisterAccount(RegisterAccountDto dto)
+        public async Task RegisterAccount(RegisterAccountDto dto)
         {
             var newAccount = _mapper.Map<User>(dto);
             var hashedPassword = _passwordHasher.HashPassword(newAccount,dto.Password);
             newAccount.PasswordHash = hashedPassword;
-            _dbContext.Users.Add(newAccount);
-            _dbContext.SaveChanges();
+            await _dbContext.Users.AddAsync(newAccount);
+            await _dbContext.SaveChangesAsync();
             _logger.LogInformation($"New uesr with Id {newAccount.Id} registered");
         }
 
-        public string GenerateJwtToken(LoginAccountDto dto)
+        public async Task<string> GenerateJwtToken(LoginAccountDto dto)
         {
-            var user = _dbContext.Users.Include(u=>u.Role).FirstOrDefault(u=>u.Email == dto.Email);
+            var user = await _dbContext.Users.Include(u=>u.Role).FirstOrDefaultAsync(u=>u.Email == dto.Email);
             if (user == null)
                 throw new BadRequestException("Incorrect email or password");
             var isPasswordValid = _passwordHasher.VerifyHashedPassword(user,user.PasswordHash ,dto.Password);

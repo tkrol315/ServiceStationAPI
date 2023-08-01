@@ -17,34 +17,34 @@ namespace ServiceStationAPI.Controllers
             _orderNoteService = orderNoteService;   
         }
         [HttpPost]
-        public ActionResult CreateOrderNote([FromRoute] int vehicleId, [FromBody] CreateOrderNoteDto dto)
+        public async Task<ActionResult> CreateOrderNote([FromRoute] int vehicleId, [FromBody] CreateOrderNoteDto dto)
         {
-            var noteId = _orderNoteService.CreateOrderNote(vehicleId, dto);
+            var noteId =await _orderNoteService.CreateOrderNote(vehicleId, dto);
             return Created($"api/{vehicleId}/ordernote/{noteId}",null);
         }
         [HttpGet]
-        public ActionResult GetAllOrderNotes([FromRoute]int vehicleId)
+        public async Task<ActionResult> GetAllOrderNotes([FromRoute]int vehicleId)
         {
-            var orderNotes = _orderNoteService.GetAllOrderNotes(vehicleId);
+            var orderNotes =await _orderNoteService.GetAllOrderNotes(vehicleId);
             return Ok(orderNotes);
         }
 
         [HttpGet("{orderNoteId}")]
-        public ActionResult GetOrderNote([FromRoute] int vehicleId, [FromRoute] int orderNoteId)
+        public async Task<ActionResult> GetOrderNote([FromRoute] int vehicleId, [FromRoute] int orderNoteId)
         {
-            var orderNote = _orderNoteService.GetOrderNoteById(vehicleId, orderNoteId);
+            var orderNote =await _orderNoteService.GetOrderNoteById(vehicleId, orderNoteId);
             return Ok(orderNote);
         }
         [HttpDelete("{orderNoteId}")]
-        public ActionResult DeleteOrderNote( [FromRoute] int vehicleId, [FromRoute] int orderNoteId)
+        public async Task<ActionResult> DeleteOrderNote( [FromRoute] int vehicleId, [FromRoute] int orderNoteId)
         {
-            _orderNoteService.RemoveOrderNoteById(vehicleId, orderNoteId);
+            await _orderNoteService.RemoveOrderNoteById(vehicleId, orderNoteId);
             return NoContent();
         }
         [HttpDelete]
-        public ActionResult DeleteOrderNotes([FromRoute] int vehicleId)
+        public async Task<ActionResult> DeleteOrderNotes([FromRoute] int vehicleId)
         {
-            _orderNoteService.RemoveOrderNotes(vehicleId);
+            await _orderNoteService.RemoveOrderNotes(vehicleId);
             return NoContent();
         }
     }

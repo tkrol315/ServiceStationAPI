@@ -19,36 +19,36 @@ namespace ServiceStationAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<VehicleDto>> GetVehicles()
+        public async Task<ActionResult<IEnumerable<VehicleDto>>> GetVehicles()
         {
-            return Ok(_vehicleService.GetVehicles());
+            return Ok(await _vehicleService.GetVehicles());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<VehicleDto> GetVehicle([FromRoute] int id)
+        public async Task<ActionResult<VehicleDto>> GetVehicle([FromRoute] int id)
         {
-            var car = _vehicleService.GetVehicle(id);
+            var car = await _vehicleService.GetVehicle(id);
             return Ok(car);
         }
 
         [HttpPost]
-        public ActionResult CreateVehicle([FromBody] CreateVehicleDto dto)
+        public async Task<ActionResult> CreateVehicle([FromBody] CreateVehicleDto dto)
         {
-            var id = _vehicleService.CreateVehicle(dto);
+            var id = await _vehicleService.CreateVehicle(dto);
             return Created($"api/car/{id}", null);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteVehicle([FromRoute] int id)
+        public async Task<ActionResult> DeleteVehicle([FromRoute] int id)
         {
-            _vehicleService.RemoveVehicle(id);
+            await _vehicleService.RemoveVehicle(id);
             return NoContent();
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateVehicle([FromRoute] int id, [FromBody] UpdateVehicleDto dto)
+        public async Task<ActionResult> UpdateVehicle([FromRoute] int id, [FromBody] UpdateVehicleDto dto)
         {
-            _vehicleService.UpdateVehicle(id, dto);
+            await _vehicleService.UpdateVehicle(id, dto);
             return Ok();
         }
     }

@@ -12,15 +12,15 @@ namespace ServiceStationAPI.Services
 {
     public interface IVehicleService
     {
-        IEnumerable<VehicleDto> GetVehicles();
+        Task<IEnumerable<VehicleDto>> GetVehicles();
 
-        VehicleDto GetVehicle(int id);
+        Task<VehicleDto> GetVehicle(int id);
 
-        int CreateVehicle(CreateVehicleDto dto);
+        Task<int> CreateVehicle(CreateVehicleDto dto);
 
-        void RemoveVehicle(int id);
+        Task RemoveVehicle(int id);
 
-        void UpdateVehicle(int id, UpdateVehicleDto dto);
+        Task UpdateVehicle(int id, UpdateVehicleDto dto);
     }
 
     public class VehicleService : IVehicleService
@@ -39,56 +39,56 @@ namespace ServiceStationAPI.Services
             _contextAccessor = contextAccessor;
         }
 
-        public IEnumerable<VehicleDto> GetVehicles()
+        public async Task<IEnumerable<VehicleDto>> GetVehicles()
         {
-            var vehicles = _dbContext.Vehicles.Include(v => v.Owner).Include(v => v.Type).Include(v=>v.OrderNotes).ToList();
+            var vehicles = await _dbContext.Vehicles.Include(v => v.Owner).Include(v => v.Type).Include(v=>v.OrderNotes).ToListAsync();
             var vehicleDtos = _mapper.Map<List<VehicleDto>>(vehicles);
             return vehicleDtos;
         }
 
-        public VehicleDto GetVehicle(int id)
+        public async Task<VehicleDto> GetVehicle(int id)
         {
-            var vehicle = _dbContext.Vehicles.Include(c => c.Owner).Include(v => v.Type).FirstOrDefault(v => v.Id == id);
+            var vehicle = await _dbContext.Vehicles.Include(c => c.Owner).Include(v => v.Type).FirstOrDefaultAsync(v => v.Id == id);
             if (vehicle == null)
                 throw new NotFoundException("Vehicle not found");
             var vehicleDto = _mapper.Map<VehicleDto>(vehicle);
             return vehicleDto;
         }
 
-        public int CreateVehicle(CreateVehicleDto dto)
+        public async Task<int> CreateVehicle(CreateVehicleDto dto)
         {
             var vehicle = _mapper.Map<CreateVehicleDto, Vehicle>(dto);
             var ownerIdClaim = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
             if (ownerIdClaim != null && Guid.TryParse(ownerIdClaim.Value, out Guid ownerId))
-                vehicle.Owner = _dbContext.Users.FirstOrDefault(u => u.Id == ownerId);
+                vehicle.Owner = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == ownerId);
             else
                 throw new NotFoundException("Owner not found");
-            _dbContext.Vehicles.Add(vehicle);
-            _dbContext.SaveChanges();
+            await _dbContext.Vehicles.AddAsync(vehicle);
+            await _dbContext.SaveChangesAsync();
             _logger.LogInformation($"Vehicle with Id:{vehicle.Id} created");
             return vehicle.Id;
         }
 
-        public void RemoveVehicle(int id)
+        public async Task RemoveVehicle(int id)
         {
             _logger.LogInformation($"Delete action on vehicle with id {id} invoked");
-            var vehicle = _dbContext.Vehicles.FirstOrDefault(v => v.Id == id);
+            var vehicle = await _dbContext.Vehicles.FirstOrDefaultAsync(v => v.Id == id);
             if (vehicle == null)
                 throw new NotFoundException("Vehicle not found");
             _dbContext.Vehicles.Remove(vehicle);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             _logger.LogInformation($"Vehicle with Id {id} deleted");
         }
 
-        public void UpdateVehicle(int id, UpdateVehicleDto dto)
+        public async Task UpdateVehicle(int id, UpdateVehicleDto dto)
         {
-            var vehicle = _dbContext.Vehicles.FirstOrDefault(v => v.Id == id);
+            var vehicle =await _dbContext.Vehicles.FirstOrDefaultAsync(v => v.Id == id);
             if (vehicle == null)
                 throw new NotFoundException("Vehicle not found");
             vehicle.Brand = dto.Brand;
             vehicle.Model = dto.Model;
             vehicle.RegistrationNumber = dto.RegistrationNumber;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             _logger.LogInformation($"Vehicle with Id {id} updated");
         }
 
