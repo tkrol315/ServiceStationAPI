@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceStationAPI.Models;
 using ServiceStationAPI.Services;
@@ -26,6 +27,14 @@ namespace ServiceStationAPI.Controllers
         {
             string token = await _accountService.GenerateJwtToken(dto);
             return Ok(token);
+        }
+
+        [HttpPut("{email}")]
+        [Authorize(Roles ="Manager")]
+        public async Task<ActionResult> Update([FromRoute]string email, [FromBody] UpdateAccountDto dto)
+        {
+            await _accountService.UpdateAccount(email, dto);
+            return Ok();
         }
     }
 }

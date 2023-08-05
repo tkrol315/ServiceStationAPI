@@ -28,15 +28,15 @@ namespace ServiceStationAPI.Services
         private readonly ServiceStationDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly ILogger<VehicleService> _logger;
-        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IUserContextService _userContextService;
 
-        public VehicleService(ServiceStationDbContext dbContext, IMapper mapper, ILogger<VehicleService> logger,IHttpContextAccessor contextAccessor)
+        public VehicleService(ServiceStationDbContext dbContext, IMapper mapper, ILogger<VehicleService> logger, IUserContextService userContextService)
 
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
-            _contextAccessor = contextAccessor;
+            _userContextService = userContextService;
         }
 
         public async Task<IEnumerable<VehicleDto>> GetVehicles()
@@ -58,11 +58,9 @@ namespace ServiceStationAPI.Services
         public async Task<int> CreateVehicle(CreateVehicleDto dto)
         {
             var vehicle = _mapper.Map<CreateVehicleDto, Vehicle>(dto);
-            var ownerIdClaim = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-            if (ownerIdClaim != null && Guid.TryParse(ownerIdClaim.Value, out Guid ownerId))
-                vehicle.Owner = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == ownerId);
-            else
-                throw new NotFoundException("Owner not found");
+            if (_userContextService.GetUserId is null)
+                throw new NotFoundException("User not found");
+            vehicle.OwnerId = _userContextService.GetUserId.Value;
             await _dbContext.Vehicles.AddAsync(vehicle);
             await _dbContext.SaveChangesAsync();
             _logger.LogInformation($"Vehicle with Id:{vehicle.Id} created");

@@ -15,6 +15,7 @@ namespace ServiceStationAPI.Services
     {
         Task RegisterAccount(RegisterAccountDto dto);
         Task<string> GenerateJwtToken(LoginAccountDto dto);
+        Task UpdateAccount(string email, UpdateAccountDto dto);
     }
     public class AccountService:IAccountService
     {
@@ -70,6 +71,20 @@ namespace ServiceStationAPI.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             _logger.LogInformation($"User with Id {user.Id} logged in");
             return tokenHandler.WriteToken(token);
+        }
+
+        public async Task UpdateAccount(string email,UpdateAccountDto dto)
+        {
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+                throw new NotFoundException("User not found");
+            if (user.RoleId == 3)
+                throw new BadRequestException("Permission denied");
+            user.Name = dto.Name;
+            user.Surname = dto.Surname;
+            user.PhoneNumber = dto.PhoneNumber;
+            user.RoleId = dto.RoleId;
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

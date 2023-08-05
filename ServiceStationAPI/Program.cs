@@ -47,6 +47,8 @@ builder.Services.AddScoped<IValidator<CreateOrderNoteDto>,CreateOrderNoteDtoVali
 builder.Services.AddScoped<IValidator<UpdateVehicleDto>,UpdateVehicleDtoValidator>();
 builder.Services.AddScoped<IValidator<CreateVehicleDto>,CreateVehicleDtoValidator>();
 builder.Services.AddScoped<IValidator<LoginAccountDto>,LoginAccountDtoValidator>();
+builder.Services.AddScoped<IValidator<UpdateAccountDto>,UpdateAccountDtoValidator>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ErrorHandlingMiddleware>();

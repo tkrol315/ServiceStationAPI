@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using ServiceStationAPI.Entities;
+using System.Runtime.CompilerServices;
 
 namespace ServiceStationAPI
 {
@@ -17,32 +18,38 @@ namespace ServiceStationAPI
             _passwordHasher = passwordHasher;
         }
 
-        public void Seed()
+        public async Task Seed()
         {
-            if (_dbContext.Database.CanConnect())
+            if (await _dbContext.Database.CanConnectAsync())
             {
-                var pendingMigrations = _dbContext.Database.GetPendingMigrations();
+                var pendingMigrations = await _dbContext.Database.GetPendingMigrationsAsync();
                 if (pendingMigrations != null && pendingMigrations.Any())
                 {
-                    _dbContext.Database.Migrate();
+                   await _dbContext.Database.MigrateAsync();
                 }
-                if (!_dbContext.Roles.Any())
+                if (!await _dbContext.Roles.AnyAsync())
                 {
                     var roles = GetRoles();
-                    _dbContext.Roles.AddRange(roles);
-                    _dbContext.SaveChanges();
+                    await _dbContext.Roles.AddRangeAsync(roles);
+                    await _dbContext.SaveChangesAsync();
                 }
-                if (!_dbContext.VehicleTypes.Any())
+                if (!await _dbContext.VehicleTypes.AnyAsync())
                 {
                     var vehicleTypes = GetVehicleTypes();
-                    _dbContext.VehicleTypes.AddRange(vehicleTypes);
-                    _dbContext.SaveChanges();
+                    await _dbContext.VehicleTypes.AddRangeAsync(vehicleTypes);
+                    await _dbContext.SaveChangesAsync();
                 }
-                if (!_dbContext.Vehicles.Any())
+                if (!await _dbContext.Users.AnyAsync())
                 {
-                    var vehicle = TestInit();
-                    _dbContext.Vehicles.AddRange(vehicle);
-                    _dbContext.SaveChanges();
+                    var users = GetUsers();
+                    await _dbContext.Users.AddRangeAsync(users);
+                    await _dbContext.SaveChangesAsync();
+                }
+                if (!await _dbContext.Vehicles.AnyAsync())
+                {
+                    var vehicle = GetVhiclesWithOwners();
+                    await _dbContext.Vehicles.AddRangeAsync(vehicle);
+                    await _dbContext.SaveChangesAsync();
                 }
             }
         }
@@ -57,7 +64,7 @@ namespace ServiceStationAPI
             return new List<VehicleType>() { new VehicleType() { Name = "Car" }, new VehicleType() { Name = "Truck" } };
         }
 
-        private IEnumerable<Vehicle> TestInit()
+        private IEnumerable<Vehicle> GetVhiclesWithOwners()
         {
             var list = new List<Vehicle>()
             {
@@ -92,6 +99,38 @@ namespace ServiceStationAPI
             };
             list[0].Owner.PasswordHash = _passwordHasher.HashPassword(list[0].Owner, "123456789");
             list[1].Owner.PasswordHash = _passwordHasher.HashPassword(list[1].Owner, "qwertyuiop");
+           
+            return list;
+        }
+        private IEnumerable<User> GetUsers()
+        {
+            var list = new List<User>()
+            {
+                new User()
+                {
+                     Name="Marek",
+                     Surname="Nowak",
+                     RoleId = 2,
+                     Email ="test1@mechanic.com",
+                },
+                new User()
+                {
+                     Name="Ryszard",
+                     Surname="Kowalski",
+                     RoleId = 2,
+                     Email ="test2@mechanic.com",
+                },
+                 new User()
+                {
+                     Name="Piotrek",
+                     Surname="Krol",
+                     RoleId = 3,
+                     Email ="manager@manager.com",
+                }
+            };
+            list[0].PasswordHash = _passwordHasher.HashPassword(list[0], "mechanic1123");
+            list[1].PasswordHash = _passwordHasher.HashPassword(list[1], "mechanic2123");
+            list[2].PasswordHash = _passwordHasher.HashPassword(list[2], "manager123");
             return list;
         }
     }

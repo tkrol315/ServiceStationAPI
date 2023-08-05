@@ -17,6 +17,7 @@ namespace ServiceStationAPI.Controllers
             _orderNoteService = orderNoteService;   
         }
         [HttpPost]
+        [Authorize(Roles="Mechanic,Manager")]
         public async Task<ActionResult> CreateOrderNote([FromRoute] int vehicleId, [FromBody] CreateOrderNoteDto dto)
         {
             var noteId =await _orderNoteService.CreateOrderNote(vehicleId, dto);
@@ -36,12 +37,14 @@ namespace ServiceStationAPI.Controllers
             return Ok(orderNote);
         }
         [HttpDelete("{orderNoteId}")]
+        [Authorize(Roles = "Manager")]
         public async Task<ActionResult> DeleteOrderNote( [FromRoute] int vehicleId, [FromRoute] int orderNoteId)
         {
             await _orderNoteService.RemoveOrderNoteById(vehicleId, orderNoteId);
             return NoContent();
         }
         [HttpDelete]
+        [Authorize(Roles = "Manager")]
         public async Task<ActionResult> DeleteOrderNotes([FromRoute] int vehicleId)
         {
             await _orderNoteService.RemoveOrderNotes(vehicleId);

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ServiceStationAPI.Dtos;
 using ServiceStationAPI.Models;
 using ServiceStationAPI.Services;
+using System.Security.Claims;
 
 namespace ServiceStationAPI.Controllers
 {
@@ -39,6 +40,7 @@ namespace ServiceStationAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Manager")]
         public async Task<ActionResult> DeleteVehicle([FromRoute] int id)
         {
             await _vehicleService.RemoveVehicle(id);
