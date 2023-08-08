@@ -6,6 +6,7 @@ namespace ServiceStationAPI.Services
     {
         ClaimsPrincipal User { get; }
         Guid? GetUserId { get; } 
+        string GetUserRole { get; }
     }
     public class UserContextService:IUserContextService
     {
@@ -14,8 +15,9 @@ namespace ServiceStationAPI.Services
         {
             _httpContextAccessor = httpContextAccessor;
         }
-        public ClaimsPrincipal User => _httpContextAccessor.HttpContext?.User;
+        public ClaimsPrincipal User => _httpContextAccessor.HttpContext.User;
         public Guid? GetUserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        public string GetUserRole => User.FindFirstValue(ClaimTypes.Role);
 
     }
 }

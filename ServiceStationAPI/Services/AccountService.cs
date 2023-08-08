@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using ServiceStationAPI.Entities;
 using ServiceStationAPI.Exceptions;
 using ServiceStationAPI.Models;
+using System.Collections;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -16,6 +17,9 @@ namespace ServiceStationAPI.Services
         Task RegisterAccount(RegisterAccountDto dto);
         Task<string> GenerateJwtToken(LoginAccountDto dto);
         Task UpdateAccount(string email, UpdateAccountDto dto);
+        Task<IEnumerable<AccountDto>> GetAccounts();
+        Task<AccountDto> GetAccount(string email);
+        Task DeleteAccount(string email);
     }
     public class AccountService:IAccountService
     {
@@ -84,7 +88,34 @@ namespace ServiceStationAPI.Services
             user.Surname = dto.Surname;
             user.PhoneNumber = dto.PhoneNumber;
             user.RoleId = dto.RoleId;
+            _logger.LogInformation($"Account with email {email} updated");
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<AccountDto>> GetAccounts()
+        {
+            var accounts = await _dbContext.Users.Include(u=>u.Role).Include(u=>u.Vehicles).Include(u=>u.OrderNotes).ToListAsync();
+            var dtos = _mapper.Map<List<AccountDto>>(accounts);
+            return dtos;
+        }
+
+        public async Task<AccountDto> GetAccount(string email)
+        {
+            var account = await _dbContext.Users.Include(u => u.Role).Include(u => u.Vehicles).Include(u => u.OrderNotes).FirstOrDefaultAsync(u=>u.Email == email);
+            if (account is null)
+                throw new NotFoundException("Account not found");
+            var dto = _mapper.Map<AccountDto>(account);
+            return dto;
+        }
+
+        public async Task DeleteAccount(string email)
+        {
+            var account = await _dbContext.Users.FirstOrDefaultAsync(u=>u.Email == email);
+            if (account is null)
+                throw new NotFoundException("Account not found");
+            _dbContext.Remove(account);
+            await _dbContext.SaveChangesAsync();
+            _logger.LogInformation($"Account with email {email} deleted");
         }
     }
 }

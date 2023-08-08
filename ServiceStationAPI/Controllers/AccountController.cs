@@ -36,5 +36,30 @@ namespace ServiceStationAPI.Controllers
             await _accountService.UpdateAccount(email, dto);
             return Ok();
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Manager")]
+        public async Task<ActionResult> GetAccounts()
+        {
+            var accounts = await _accountService.GetAccounts();
+            return Ok(accounts);
+        }
+
+        [HttpGet("{email}")]
+        [Authorize(Roles = "Manager")]
+
+        public async Task<ActionResult> GetAccount([FromRoute]string email)
+        {
+            var account = await _accountService.GetAccount(email);
+            return Ok(account);
+        }
+
+        [HttpDelete("{email}")]
+        [Authorize(Roles ="Manager")]
+        public async Task<ActionResult> Delete([FromRoute] string email)
+        {
+            await _accountService.DeleteAccount(email);
+            return NoContent();
+        }
     }
 }

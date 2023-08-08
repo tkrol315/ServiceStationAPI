@@ -41,7 +41,9 @@ namespace ServiceStationAPI.Services
 
         public async Task<IEnumerable<VehicleDto>> GetVehicles()
         {
-            var vehicles = await _dbContext.Vehicles.Include(v => v.Owner).Include(v => v.Type).Include(v=>v.OrderNotes).ToListAsync();
+            var vehicles = await _dbContext.Vehicles.Include(v => v.Owner).Include(v => v.Type).Include(v => v.OrderNotes).ToListAsync();
+            if (_userContextService.GetUserRole == "Client")
+                vehicles = vehicles.Where(v => v.OwnerId == _userContextService.GetUserId).ToList();
             var vehicleDtos = _mapper.Map<List<VehicleDto>>(vehicles);
             return vehicleDtos;
         }
@@ -49,6 +51,9 @@ namespace ServiceStationAPI.Services
         public async Task<VehicleDto> GetVehicle(int id)
         {
             var vehicle = await _dbContext.Vehicles.Include(c => c.Owner).Include(v => v.Type).FirstOrDefaultAsync(v => v.Id == id);
+            if(_userContextService.GetUserRole == "Client")
+                if (vehicle == null || !(vehicle.OwnerId == _userContextService.GetUserId))
+                    vehicle = null;
             if (vehicle == null)
                 throw new NotFoundException("Vehicle not found");
             var vehicleDto = _mapper.Map<VehicleDto>(vehicle);

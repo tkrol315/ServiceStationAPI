@@ -25,6 +25,8 @@ namespace ServiceStationAPI
                 .ForMember(m => m.Creator, opt => opt.Ignore());
            CreateMap<RegisterAccountDto,User>()
                 .ForMember(m=>m.Role, opt => opt.Ignore());
+            CreateMap<User,AccountDto>()
+                .ForMember(m=>m.RoleName, opt=> opt.MapFrom(u=>u.Role.Name));
         }
     }
 }
