@@ -28,14 +28,19 @@ namespace ServiceStationAPI.Services
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
         private readonly ILogger<AccountService> _logger;
+        private readonly IUserContextService _userContextService;
+        
         public AccountService(ServiceStationDbContext dbContext,IMapper mapper,IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings,
-            ILogger<AccountService> logger)
+            ILogger<AccountService> logger, IUserContextService userContextService)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
             _logger = logger;
+            _userContextService = userContextService;
+           
+
         }
         public async Task RegisterAccount(RegisterAccountDto dto)
         {
@@ -65,10 +70,8 @@ namespace ServiceStationAPI.Services
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
             var credentials = new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
-            //TEMPORARY CHANGE
-            //var expires = DateTime.Now.AddMinutes(_authenticationSettings.JwtExpireMins);
-            var expires = DateTime.Now.AddDays(_authenticationSettings.JwtExpireMins);
-            //==============================================================================
+            
+            var expires = DateTime.Now.AddMinutes(_authenticationSettings.JwtExpireMins);
 
             var token = new JwtSecurityToken(_authenticationSettings.JwtIssuer,_authenticationSettings.JwtIssuer,claims,
                 expires:expires, signingCredentials: credentials);
@@ -83,7 +86,7 @@ namespace ServiceStationAPI.Services
             if (user == null)
                 throw new NotFoundException("User not found");
             if (user.RoleId == 3)
-                throw new BadRequestException("Permission denied");
+                throw new ForbiddenException("Permission denied");
             user.Name = dto.Name;
             user.Surname = dto.Surname;
             user.PhoneNumber = dto.PhoneNumber;
@@ -113,6 +116,11 @@ namespace ServiceStationAPI.Services
             var account = await _dbContext.Users.FirstOrDefaultAsync(u=>u.Email == email);
             if (account is null)
                 throw new NotFoundException("Account not found");
+            if (account.RoleId == 3)
+            {
+                _logger.LogInformation($"User with Id {_userContextService.GetUserId} tried to remove user with Id {account.Id}");
+                throw new ForbiddenException("Permission denied");
+            }
             _dbContext.Remove(account);
             await _dbContext.SaveChangesAsync();
             _logger.LogInformation($"Account with email {email} deleted");
