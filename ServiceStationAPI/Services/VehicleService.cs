@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
+using ServiceStationAPI.Authorization;
 using ServiceStationAPI.Dtos;
 using ServiceStationAPI.Entities;
 using ServiceStationAPI.Exceptions;
@@ -29,14 +31,17 @@ namespace ServiceStationAPI.Services
         private readonly IMapper _mapper;
         private readonly ILogger<VehicleService> _logger;
         private readonly IUserContextService _userContextService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public VehicleService(ServiceStationDbContext dbContext, IMapper mapper, ILogger<VehicleService> logger, IUserContextService userContextService)
+        public VehicleService(ServiceStationDbContext dbContext, IMapper mapper, ILogger<VehicleService> logger, IUserContextService userContextService,
+            IAuthorizationService authorizationService)
 
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _logger = logger;
             _userContextService = userContextService;
+            _authorizationService = authorizationService;
         }
 
         public async Task<IEnumerable<VehicleDto>> GetVehicles()
@@ -51,11 +56,14 @@ namespace ServiceStationAPI.Services
         public async Task<VehicleDto> GetVehicle(int id)
         {
             var vehicle = await _dbContext.Vehicles.Include(c => c.Owner).Include(v => v.Type).FirstOrDefaultAsync(v => v.Id == id);
-            if(_userContextService.GetUserRole == "Client")
-                if (vehicle == null || !(vehicle.OwnerId == _userContextService.GetUserId))
-                    vehicle = null;
             if (vehicle == null)
                 throw new NotFoundException("Vehicle not found");
+            var user = _userContextService.User;
+            var AuthorizationResoult = await _authorizationService.AuthorizeAsync(user, vehicle, new ResourceOperationRequirement(ResourceOperation.ReadById));
+            if (!AuthorizationResoult.Succeeded)
+            {
+                throw new ForbiddenException("Access denied");
+            }
             var vehicleDto = _mapper.Map<VehicleDto>(vehicle);
             return vehicleDto;
         }
@@ -78,6 +86,12 @@ namespace ServiceStationAPI.Services
             var vehicle = await _dbContext.Vehicles.FirstOrDefaultAsync(v => v.Id == id);
             if (vehicle == null)
                 throw new NotFoundException("Vehicle not found");
+            var user = _userContextService.User;
+            var AuthorizationResoult = await _authorizationService.AuthorizeAsync(user, vehicle, new ResourceOperationRequirement(ResourceOperation.Delete));
+            if (!AuthorizationResoult.Succeeded)
+            {
+                throw new ForbiddenException("Access denied");
+            }
             _dbContext.Vehicles.Remove(vehicle);
             await _dbContext.SaveChangesAsync();
             _logger.LogInformation($"Vehicle with Id {id} deleted");
@@ -85,9 +99,16 @@ namespace ServiceStationAPI.Services
 
         public async Task UpdateVehicle(int id, UpdateVehicleDto dto)
         {
+           
             var vehicle =await _dbContext.Vehicles.FirstOrDefaultAsync(v => v.Id == id);
             if (vehicle == null)
                 throw new NotFoundException("Vehicle not found");
+            var user = _userContextService.User;
+            var AuthorizationResoult = await _authorizationService.AuthorizeAsync(user, vehicle, new ResourceOperationRequirement(ResourceOperation.Update));
+            if (!AuthorizationResoult.Succeeded)
+            {
+                throw new ForbiddenException("Access denied");
+            }
             vehicle.Brand = dto.Brand;
             vehicle.Model = dto.Model;
             vehicle.RegistrationNumber = dto.RegistrationNumber;

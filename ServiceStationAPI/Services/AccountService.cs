@@ -71,7 +71,7 @@ namespace ServiceStationAPI.Services
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
             var credentials = new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
             
-            var expires = DateTime.Now.AddMinutes(_authenticationSettings.JwtExpireMins);
+            var expires = DateTime.Now.AddMinutes(_authenticationSettings.JwtExpireDays);
 
             var token = new JwtSecurityToken(_authenticationSettings.JwtIssuer,_authenticationSettings.JwtIssuer,claims,
                 expires:expires, signingCredentials: credentials);

@@ -40,7 +40,6 @@ namespace ServiceStationAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Manager")]
         public async Task<ActionResult> DeleteVehicle([FromRoute] int id)
         {
             await _vehicleService.RemoveVehicle(id);

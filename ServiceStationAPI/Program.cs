@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NLog.Web;
 using ServiceStationAPI;
+using ServiceStationAPI.Authorization;
 using ServiceStationAPI.Entities;
 using ServiceStationAPI.Middleware;
 using ServiceStationAPI.Models;
@@ -50,6 +51,7 @@ builder.Services.AddScoped<IValidator<CreateVehicleDto>,CreateVehicleDtoValidato
 builder.Services.AddScoped<IValidator<LoginAccountDto>,LoginAccountDtoValidator>();
 builder.Services.AddScoped<IValidator<UpdateAccountDto>,UpdateAccountDtoValidator>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<IAuthorizationHandler,VehicleOperationRequirementHandler>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
