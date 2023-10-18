@@ -4,10 +4,12 @@ namespace ServiceStationAPI.Authorization
 {
     public enum ResourceOperation
     {
+        Read,
         ReadById,
-        Create,
+        CreateVehicle,
+        CreateOrderNote,
         Update,
-        Delete
+        Delete,
     }
     public class ResourceOperationRequirement : IAuthorizationRequirement
     {

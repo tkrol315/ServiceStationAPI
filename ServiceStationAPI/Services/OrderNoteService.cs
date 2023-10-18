@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using AutoMapper.Configuration.Conventions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using ServiceStationAPI.Authorization;
 using ServiceStationAPI.Entities;
 using ServiceStationAPI.Exceptions;
 using ServiceStationAPI.Models;
@@ -23,13 +25,19 @@ namespace ServiceStationAPI.Services
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<OrderNoteService> _logger;
-        public OrderNoteService(ServiceStationDbContext dbContext, IMapper mapper, IHttpContextAccessor contextAccessor, ILogger<OrderNoteService> logger)
+        private readonly IUserContextService _userContextService;
+        private readonly IAuthorizationHelper _authorizationHelper;
+
+        //CHECK VALIDATION IN ALL METHODS, CHECK IF GETALL WORK PROPERLY
+        public OrderNoteService(ServiceStationDbContext dbContext, IMapper mapper, IHttpContextAccessor contextAccessor, ILogger<OrderNoteService> logger,
+            IUserContextService userContextService, IAuthorizationHelper authorizationHelper)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _contextAccessor = contextAccessor;
             _logger = logger;
-
+            _userContextService = userContextService;
+            _authorizationHelper = authorizationHelper;
         }
         private async Task<Vehicle> GetVehicle(int vehicleId)
         {
@@ -38,11 +46,13 @@ namespace ServiceStationAPI.Services
                 throw new NotFoundException("Vehicle not found");
             return vehicle;
         }
+
         public async Task<int> CreateOrderNote(int id, CreateOrderNoteDto dto)
         {
             var vehicle = await _dbContext.Vehicles.FirstOrDefaultAsync(v => v.Id == id);
             if (vehicle == null)
                 throw new NotFoundException("Vehicle not found");
+            await _authorizationHelper.ValidateAuthorization(vehicle, ResourceOperation.CreateOrderNote);
             var orderNote = _mapper.Map<OrderNote>(dto);
             orderNote.Vehicle = vehicle;
             var creatorIdClaim = _contextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
@@ -58,10 +68,11 @@ namespace ServiceStationAPI.Services
 
         public async Task<IEnumerable<OrderNoteDto>> GetAllOrderNotes(int vehicleId)
         {
-            var orderNotes = await _dbContext.OrderNotes.Include(o=>o.Creator).Where(o => o.VehicleId == vehicleId).ToListAsync();
-            if(orderNotes == null)
+            var vehicle = await _dbContext.Vehicles.Include(v => v.OrderNotes).ThenInclude(o => o.Creator).FirstOrDefaultAsync(v => v.Id == vehicleId);
+            if (vehicle == null)
                 throw new NotFoundException("Vehicle not found");
-            var orderNoteDtos = _mapper.Map<List<OrderNoteDto>>(orderNotes);
+            await _authorizationHelper.ValidateAuthorization(vehicle, ResourceOperation.Read);
+            var orderNoteDtos = _mapper.Map<List<OrderNoteDto>>(vehicle.OrderNotes);
             return orderNoteDtos;
         }
         public async Task<OrderNoteDto> GetOrderNoteById(int vehicleId,int orderNoteId)
@@ -69,6 +80,7 @@ namespace ServiceStationAPI.Services
             var vehicle = await _dbContext.Vehicles.Include(v => v.OrderNotes).ThenInclude(o => o.Creator).FirstOrDefaultAsync(v => v.Id == vehicleId);
             if(vehicle == null)
                 throw new NotFoundException("Vehicle not found");
+            await _authorizationHelper.ValidateAuthorization(vehicle, ResourceOperation.ReadById);
             var orderNote = vehicle.OrderNotes.FirstOrDefault(n=>n.Id == orderNoteId);
             if(orderNote == null)
                 throw new NotFoundException("Order note not found");
@@ -80,6 +92,7 @@ namespace ServiceStationAPI.Services
         {
             _logger.LogInformation($"Delete action on order note with id {orderNoteId} invoked");
             var vehicle = await GetVehicle(vehicleId);
+            await _authorizationHelper.ValidateAuthorization(vehicle, ResourceOperation.Delete);
             var orderNote = vehicle.OrderNotes.FirstOrDefault(o => o.Id == orderNoteId);
             if (orderNote == null)
                 throw new NotFoundException("Order note not found");
@@ -91,6 +104,7 @@ namespace ServiceStationAPI.Services
         {
             _logger.LogInformation($"Delete action on all order notes from vehicle with id {vehicleId} invoked");
             var vehicle = await GetVehicle(vehicleId);
+            await _authorizationHelper.ValidateAuthorization(vehicle, ResourceOperation.Delete);
             vehicle.OrderNotes.RemoveRange(0, vehicle.OrderNotes.Count);
             await _dbContext.SaveChangesAsync();
             _logger.LogInformation($"all order notes from vehicle with id {vehicleId} deleted");
