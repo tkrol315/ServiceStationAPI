@@ -42,24 +42,12 @@ The application has three roles: Client, Mechanic, and Manager. Below, you can f
 
 ### Vehicles
 
-- **Create Own Vehicle**: Allows mechanics to create their own vehicles that need repair.
-  - **Method**: POST
-  - **Endpoint**: `/api/vehicle`
-
 - **Read All Vehicles**: Enables mechanics to view all vehicles (including those owned by clients).
   - **Method**: GET
   - **Endpoint**: `/api/vehicle`
 
 - **Read Specific Vehicle by ID**: Allows mechanics to retrieve details of a specific vehicle by its ID.
   - **Method**: GET
-  - **Endpoint**: `/api/vehicle/{id}`
-
-- **Update Own Vehicle**: Allows mechanics to update information about their own vehicle.
-  - **Method**: PUT
-  - **Endpoint**: `/api/vehicle/{id}`
-
-- **Remove Own Vehicle by ID**: Allows mechanics to remove their own vehicle by its ID.
-  - **Method**: DELETE
   - **Endpoint**: `/api/vehicle/{id}`
 
 ### Order Notes
