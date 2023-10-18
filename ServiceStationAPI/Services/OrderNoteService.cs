@@ -28,7 +28,6 @@ namespace ServiceStationAPI.Services
         private readonly IUserContextService _userContextService;
         private readonly IAuthorizationHelper _authorizationHelper;
 
-        //CHECK VALIDATION IN ALL METHODS, CHECK IF GETALL WORK PROPERLY
         public OrderNoteService(ServiceStationDbContext dbContext, IMapper mapper, IHttpContextAccessor contextAccessor, ILogger<OrderNoteService> logger,
             IUserContextService userContextService, IAuthorizationHelper authorizationHelper)
         {
@@ -92,7 +91,6 @@ namespace ServiceStationAPI.Services
         {
             _logger.LogInformation($"Delete action on order note with id {orderNoteId} invoked");
             var vehicle = await GetVehicle(vehicleId);
-            await _authorizationHelper.ValidateAuthorization(vehicle, ResourceOperation.Delete);
             var orderNote = vehicle.OrderNotes.FirstOrDefault(o => o.Id == orderNoteId);
             if (orderNote == null)
                 throw new NotFoundException("Order note not found");
@@ -104,7 +102,6 @@ namespace ServiceStationAPI.Services
         {
             _logger.LogInformation($"Delete action on all order notes from vehicle with id {vehicleId} invoked");
             var vehicle = await GetVehicle(vehicleId);
-            await _authorizationHelper.ValidateAuthorization(vehicle, ResourceOperation.Delete);
             vehicle.OrderNotes.RemoveRange(0, vehicle.OrderNotes.Count);
             await _dbContext.SaveChangesAsync();
             _logger.LogInformation($"all order notes from vehicle with id {vehicleId} deleted");

@@ -11,6 +11,7 @@ using ServiceStationAPI.Entities;
 using ServiceStationAPI.Middleware;
 using ServiceStationAPI.Models;
 using ServiceStationAPI.Models.Validators;
+using ServiceStationAPI.Seeders;
 using ServiceStationAPI.Services;
 using System.Text;
 

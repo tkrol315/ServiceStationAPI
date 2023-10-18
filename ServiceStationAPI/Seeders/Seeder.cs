@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using ServiceStationAPI.Entities;
 using System.Runtime.CompilerServices;
 
-namespace ServiceStationAPI
+namespace ServiceStationAPI.Seeders
 {
     public class Seeder
     {
         private readonly ServiceStationDbContext _dbContext;
         private readonly IPasswordHasher<User> _passwordHasher;
 
-        public Seeder(ServiceStationDbContext dbContext,IPasswordHasher<User> passwordHasher)
+        public Seeder(ServiceStationDbContext dbContext, IPasswordHasher<User> passwordHasher)
 
         {
             _dbContext = dbContext;
@@ -25,7 +25,7 @@ namespace ServiceStationAPI
                 var pendingMigrations = await _dbContext.Database.GetPendingMigrationsAsync();
                 if (pendingMigrations != null && pendingMigrations.Any())
                 {
-                   await _dbContext.Database.MigrateAsync();
+                    await _dbContext.Database.MigrateAsync();
                 }
                 if (!await _dbContext.Roles.AnyAsync())
                 {
@@ -99,7 +99,7 @@ namespace ServiceStationAPI
             };
             list[0].Owner.PasswordHash = _passwordHasher.HashPassword(list[0].Owner, "123456789");
             list[1].Owner.PasswordHash = _passwordHasher.HashPassword(list[1].Owner, "qwertyuiop");
-           
+
             return list;
         }
         private IEnumerable<User> GetUsers()

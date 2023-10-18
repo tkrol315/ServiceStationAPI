@@ -16,7 +16,7 @@ namespace ServiceStationAPI.Authorization
             {
                 context.Succeed(resourceOperationRequirement);
             }
-            else if (resourceOperationRequirement.Operation == ResourceOperation.CreateVehicle)
+            else if (resourceOperationRequirement.Operation == ResourceOperation.CreateVehicle && role != "Mechanic")
             {
                 context.Succeed(resourceOperationRequirement);
             }
@@ -26,6 +26,10 @@ namespace ServiceStationAPI.Authorization
             }
             else if ((resourceOperationRequirement.Operation == ResourceOperation.ReadById || resourceOperationRequirement.Operation == ResourceOperation.Read)
                 && (userId == vehicle.OwnerId || role == "Mechanic"))
+            {
+                context.Succeed(resourceOperationRequirement);
+            }
+            else if(resourceOperationRequirement.Operation == ResourceOperation.Update && role != "Mechanic")
             {
                 context.Succeed(resourceOperationRequirement);
             }
